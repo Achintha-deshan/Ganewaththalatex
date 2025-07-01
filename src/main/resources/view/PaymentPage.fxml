@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane fx:id="ancpanelodpayment" prefHeight="883.0" prefWidth="1246.0" style="-fx-background-color: #CDD1C4;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="edu.lk.ijse.ganewaththalatex.ganewaththalatex.controller.PaymentController">  <!-- Set background color here -->
+
+    <!-- Centered Payment Card -->
+    <AnchorPane layoutX="354.0" layoutY="200.0" prefHeight="389.0" prefWidth="521.0" style="-fx-background-color: white; -fx-background-radius: 15; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 10, 0, 0, 5);">
+
+        <children>
+            <Label layoutX="180.0" layoutY="20.0" text="Payment Details">
+                <font>
+                    <Font size="24.0" />
+                </font>
+            </Label>
+         <Button fx:id="btnBack" layoutX="55.0" layoutY="330.0" onAction="#btnonActionBack" prefHeight="30.0" prefWidth="97.0" style="-fx-background-color: #28a745; -fx-text-fill: white; -fx-font-size: 14; -fx-background-radius: 10;" text="Back" />
+         <Label layoutX="57.0" layoutY="281.0" />
+         <VBox layoutX="58.0" layoutY="54.0" prefHeight="177.0" prefWidth="426.0" spacing="20.0">
+            <children>
+               <HBox />
+               <HBox />
+               <HBox />
+               <HBox>
+                  <children>
+            
+                              <Label prefHeight="18.0" prefWidth="151.0" text="Payment Type     :" />
+                        <ComboBox fx:id="cmbPaymentType" onAction="#cmbChooseaction" prefWidth="250.0" />
+                  </children>
+               </HBox>
+               <HBox>
+                  <children>
+            
+                              <Label prefHeight="18.0" prefWidth="151.0" text="Amount              :" />
+                        <TextField fx:id="txtAmount" prefWidth="250.0" />
+                  </children>
+               </HBox>
+            </children>
+         </VBox>
+
+                  <Button fx:id="btnConfirm" layoutX="191.0" layoutY="239.0" onAction="#btnonActionConfirmPayment" prefWidth="150.0" style="-fx-background-color: #1B3553; -fx-text-fill: white; -fx-font-size: 14; -fx-background-radius: 10;" text="Confirm Payment" />
+        </children>
+    </AnchorPane>
+
+</AnchorPane>

@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane prefHeight="785.0" prefWidth="1246.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="edu.lk.ijse.ganewaththalatex.ganewaththalatex.controller.SalaryController">
+    <AnchorPane layoutX="-1.0" prefHeight="82.0" prefWidth="1251.0" style="-fx-background-color: #1B3553;">
+        <children>
+            <Label layoutX="482.0" layoutY="8.0" prefHeight="62.0" prefWidth="381.0" text="Salary Management" textAlignment="CENTER" textFill="#f39c12">
+                <font>
+                    <Font name="Times New Roman Bold" size="38.0" />
+                </font>
+            </Label>
+        </children>
+    </AnchorPane>
+    <VBox layoutX="85.0" layoutY="101.0" prefHeight="523.0" prefWidth="270.0" spacing="10">
+        <children>
+            <Label style="-fx-font-size: 20px; -fx-font-weight: bold;" text="Salary Management" />
+
+            <Label text="Employee ID:" />
+            <ComboBox fx:id="cmbEmployeeId" prefHeight="26.0" prefWidth="175.0" />
+
+            <Label text="Employee Name:" />
+            <TextField fx:id="txtEmployeeName" editable="false" prefHeight="26.0" prefWidth="176.0" />
+
+            <Label text="Month (YYYY-MM):" />
+            <TextField fx:id="txtMonth" prefWidth="150" promptText="e.g. 2025-06" />
+
+            <Label text="Total Present Days:" />
+            <TextField fx:id="txtPresentDays" prefWidth="150" />
+
+            <Label text="Total Half Days:" />
+            <TextField fx:id="txtHalfDays" prefWidth="150" />
+
+            <Label text="Daily Rate:" />
+            <TextField fx:id="txtDailyRate" prefWidth="150" />
+
+            <Label text="Total Salary:" />
+            <TextField fx:id="txtTotalSalary" editable="false" prefWidth="150" />
+         <HBox>
+            <children>
+      
+                  <Button fx:id="btnCalculate" prefHeight="26.0" prefWidth="277.0" text="Calculate Salary" />
+            </children>
+         </HBox>
+         <HBox prefHeight="26.0" prefWidth="142.0">
+            <children>
+                  <Button fx:id="btnSave" prefHeight="26.0" prefWidth="279.0" text="Save Salary" />
+            </children>
+         </HBox>
+            <Button fx:id="btnClear" prefHeight="0.0" prefWidth="270.0" text="Clear" />
+        </children>
+    </VBox>
+
+    <TableView fx:id="tblSalary" layoutX="420" layoutY="100" prefHeight="589.0" prefWidth="780">
+        <columns>
+            <TableColumn fx:id="colEmployeeId" prefWidth="120" text="Employee ID" />
+            <TableColumn fx:id="colEmployeeName" prefWidth="150" text="Employee Name" />
+            <TableColumn fx:id="colMonth" prefWidth="100" text="Month" />
+            <TableColumn fx:id="colPresentDays" prefWidth="100" text="Present Days" />
+            <TableColumn fx:id="colHalfDays" prefWidth="100" text="Half Days" />
+            <TableColumn fx:id="colDailyRate" prefWidth="100" text="Daily Rate" />
+            <TableColumn fx:id="colTotalSalary" prefWidth="110" text="Total Salary" />
+        </columns>
+    </TableView>
+   <HBox layoutX="702.0" layoutY="711.0" spacing="50.0">
+      <children>
+         <Button fx:id="btnUpdate" mnemonicParsing="false" onAction="#btnonActionUpdateEmploye" prefHeight="38.0" prefWidth="124.0" style="-fx-background-color: #007bff;" text="Update">
+            <font>
+               <Font name="Times New Roman" size="20.0" />
+            </font>
+         </Button>
+         <Button fx:id="btnDelete" mnemonicParsing="false" onAction="#btnonActionDeleteEmploye" prefHeight="38.0" prefWidth="124.0" style="-fx-background-color: #DC3545;" text="Delete">
+            <font>
+               <Font name="Times New Roman" size="20.0" />
+            </font>
+         </Button>
+      </children>
+   </HBox>
+</AnchorPane>
