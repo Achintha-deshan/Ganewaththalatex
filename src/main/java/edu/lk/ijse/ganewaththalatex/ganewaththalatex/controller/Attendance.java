@@ -241,6 +241,11 @@ public class Attendance implements Initializable {
         });
     }
 
+    public void btnonActionsalary(ActionEvent actionEvent) {
+    }
 
 
+    //   public void btnonActionsalary(ActionEvent actionEvent) {
+   //     "/view/Salary.fxml"
+    //}
 }

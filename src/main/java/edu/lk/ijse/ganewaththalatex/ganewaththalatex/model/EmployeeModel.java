@@ -9,6 +9,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class EmployeeModel {
     public static ArrayList<EmployeeDto> getEmployees() throws SQLException, ClassNotFoundException {
@@ -89,6 +91,23 @@ public class EmployeeModel {
             );
         }
         return null;
+    }
+
+    public static List<String> getAllEmployeeIds() throws SQLException, ClassNotFoundException {
+        // Get all employee IDs from the database
+        ArrayList<EmployeeDto> employees = getEmployees();
+        // Return only the list of IDs as strings
+        return employees.stream()
+                .map(EmployeeDto::getEmployerID)
+                .collect(Collectors.toList());
+    }
+
+    public static String getNameById(String id) throws SQLException, ClassNotFoundException {
+        EmployeeDto emp = searchEmployee(id);
+        if (emp != null) {
+            return emp.getEmployerName();
+        }
+        return "";
     }
 
 

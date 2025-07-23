@@ -259,4 +259,8 @@ public class EmployeeController implements Initializable {
             e.printStackTrace();
         }
     }
+
+    public void btnonActionsalary(ActionEvent actionEvent) {
+        navigate("/view/Salary.fxml");
+    }
 }

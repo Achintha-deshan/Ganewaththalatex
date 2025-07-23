@@ -111,5 +111,10 @@
             <Font name="Times New Roman" size="20.0" />
          </font>
       </Button>
+      <Button fx:id="btnsalary" layoutX="844.0" layoutY="197.0" mnemonicParsing="false" onAction="#btnonActionsalary" prefHeight="21.0" prefWidth="286.0" style="-fx-background-color: #28a745;" text="Salary">
+         <font>
+            <Font name="Times New Roman" size="20.0" />
+         </font>
+      </Button>
    </children>
 </AnchorPane>

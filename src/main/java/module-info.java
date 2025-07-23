@@ -4,6 +4,7 @@ module edu.lk.ijse.ganewaththalatex.ganewaththalatex {
     requires java.sql;
     requires java.desktop;
     requires net.sf.jasperreports.core;
+    requires static lombok;
 
 
     opens edu.lk.ijse.ganewaththalatex.ganewaththalatex.controller to javafx.fxml;

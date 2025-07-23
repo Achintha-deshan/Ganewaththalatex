@@ -5,6 +5,8 @@ import edu.lk.ijse.ganewaththalatex.ganewaththalatex.dto.AttendanceDto;
 import edu.lk.ijse.ganewaththalatex.ganewaththalatex.dto.tm.AttendanceTM;
 
 import java.sql.*;
+import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -62,6 +64,39 @@ public class AttendanceModel {
         ps.setString(1, attendanceId);
 
         return ps.executeUpdate() > 0;
+    }
+
+
+
+    public static int[] getAttendanceCounts(String empId, String month) throws SQLException, ClassNotFoundException {
+        Connection con = DBConnection.getInstance().getConnection();
+
+        // Convert "YYYY-MM" to start and end dates
+        YearMonth yearMonth = YearMonth.parse(month); // Example: "2025-07"
+        LocalDate startDate = yearMonth.atDay(1);     // e.g., 2025-07-01
+        LocalDate endDate = yearMonth.atEndOfMonth(); // e.g., 2025-07-31
+
+        String sql = "SELECT status FROM Attendance WHERE Employee_ID = ? AND date BETWEEN ? AND ?";
+        PreparedStatement ps = con.prepareStatement(sql);
+        ps.setString(1, empId);
+        ps.setDate(2, Date.valueOf(startDate));
+        ps.setDate(3, Date.valueOf(endDate));
+
+        ResultSet rs = ps.executeQuery();
+
+        int present = 0;
+        int halfDay = 0;
+
+        while (rs.next()) {
+            String status = rs.getString("status");
+            if ("Present".equalsIgnoreCase(status)) {
+                present++;
+            } else if ("Half-Day".equalsIgnoreCase(status)) {
+                halfDay++;
+            }
+        }
+
+        return new int[]{present, halfDay};
     }
 
 }

@@ -48,15 +48,15 @@
          <HBox>
             <children>
       
-                  <Button fx:id="btnCalculate" prefHeight="26.0" prefWidth="277.0" text="Calculate Salary" />
+                  <Button fx:id="btnCalculate" onAction="#btnonActionCalculatesalary" prefHeight="26.0" prefWidth="277.0" text="Calculate Salary" />
             </children>
          </HBox>
          <HBox prefHeight="26.0" prefWidth="142.0">
             <children>
-                  <Button fx:id="btnSave" prefHeight="26.0" prefWidth="279.0" text="Save Salary" />
+                  <Button fx:id="btnSave" onAction="#btnonActionsavesalary" prefHeight="26.0" prefWidth="279.0" text="Save Salary" />
             </children>
          </HBox>
-            <Button fx:id="btnClear" prefHeight="0.0" prefWidth="270.0" text="Clear" />
+            <Button fx:id="btnClear" onAction="#btnonActionClear" prefHeight="0.0" prefWidth="270.0" text="Clear" />
         </children>
     </VBox>
 

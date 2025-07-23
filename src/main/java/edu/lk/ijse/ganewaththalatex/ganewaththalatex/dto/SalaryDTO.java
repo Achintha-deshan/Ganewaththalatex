@@ -8,10 +8,10 @@ public class SalaryDTO {
     private String month;
     private int totalPresentDays;
     private int totalHalfDays;
-    private BigDecimal dailyRate;      // Use BigDecimal for money
-    private BigDecimal totalSalary;    // Use BigDecimal for money
-    private String bankDetails;
+    private BigDecimal dailyRate;
+    private BigDecimal totalSalary;
 
+    // Constructor without bankDetails (since it's not used)
     public SalaryDTO(String salaryId, String employeeId, String month, int totalPresentDays, int totalHalfDays, BigDecimal dailyRate, BigDecimal totalSalary) {
         this.salaryId = salaryId;
         this.employeeId = employeeId;
@@ -20,7 +20,6 @@ public class SalaryDTO {
         this.totalHalfDays = totalHalfDays;
         this.dailyRate = dailyRate;
         this.totalSalary = totalSalary;
-        this.bankDetails = bankDetails;
     }
 
     public String getSalaryId() {
@@ -79,11 +78,5 @@ public class SalaryDTO {
         this.totalSalary = totalSalary;
     }
 
-    public String getBankDetails() {
-        return bankDetails;
-    }
 
-    public void setBankDetails(String bankDetails) {
-        this.bankDetails = bankDetails;
-    }
 }

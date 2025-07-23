@@ -107,6 +107,7 @@
             </Button>
          </children>
       </HBox>
-      <Button fx:id="btnattandanceandsalary" layoutX="525.0" layoutY="380.0" mnemonicParsing="false" onAction="#btnonActionAttandanceandsalary" prefHeight="26.0" prefWidth="222.0" text="Attandance and Salary" />
+      <Button fx:id="btnattandanceandsalary" layoutX="525.0" layoutY="380.0" mnemonicParsing="false" onAction="#btnonActionAttandanceandsalary" prefHeight="26.0" prefWidth="222.0" text="Attandance " />
+      <Button fx:id="btnsalry" layoutX="525.0" layoutY="410.0" mnemonicParsing="false" onAction="#btnonActionsalary" prefHeight="26.0" prefWidth="222.0" text="Salary" />
    </children>
 </AnchorPane>

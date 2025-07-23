@@ -13,7 +13,7 @@ import java.util.List;
 public class SalaryModel {
     public static boolean saveSalary(SalaryDTO salary) throws SQLException, ClassNotFoundException {
         Connection con = DBConnection.getInstance().getConnection();
-        String sql = "INSERT INTO Salary(Salary_ID, Employee_ID, month, total_present_days, total_half_days, daily_rate, total_salary, bank_details) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO Salary(Salary_ID, Employee_ID, month, total_present_days, total_half_days, daily_rate, total_salary) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
         PreparedStatement pstm = con.prepareStatement(sql);
         pstm.setString(1, salary.getSalaryId());
@@ -21,9 +21,9 @@ public class SalaryModel {
         pstm.setString(3, salary.getMonth());
         pstm.setInt(4, salary.getTotalPresentDays());
         pstm.setInt(5, salary.getTotalHalfDays());
-        pstm.setBigDecimal(6, salary.getDailyRate());      // BigDecimal here
-        pstm.setBigDecimal(7, salary.getTotalSalary());    // BigDecimal here
-        pstm.setString(8, salary.getBankDetails());
+        pstm.setBigDecimal(6, salary.getDailyRate());
+        pstm.setBigDecimal(7, salary.getTotalSalary());
+
 
         return pstm.executeUpdate() > 0;
     }
@@ -31,16 +31,15 @@ public class SalaryModel {
     // Update existing salary record
     public static boolean updateSalary(SalaryDTO salary) throws SQLException, ClassNotFoundException {
         Connection con = DBConnection.getInstance().getConnection();
-        String sql = "UPDATE Salary SET Employee_ID=?, month=?, total_present_days=?, total_half_days=?, daily_rate=?, total_salary=?, bank_details=? WHERE Salary_ID=?";
+        String sql = "UPDATE Salary SET Employee_ID=?, month=?, total_present_days=?, total_half_days=?, daily_rate=?, total_salary=? WHERE Salary_ID=?";
         PreparedStatement pstm = con.prepareStatement(sql);
         pstm.setString(1, salary.getEmployeeId());
         pstm.setString(2, salary.getMonth());
         pstm.setInt(3, salary.getTotalPresentDays());
         pstm.setInt(4, salary.getTotalHalfDays());
-        pstm.setBigDecimal(6, salary.getDailyRate());      // BigDecimal here
-        pstm.setBigDecimal(7, salary.getTotalSalary());
-        pstm.setString(7, salary.getBankDetails());
-        pstm.setString(8, salary.getSalaryId());
+        pstm.setBigDecimal(5, salary.getDailyRate());
+        pstm.setBigDecimal(6, salary.getTotalSalary());
+        pstm.setString(7, salary.getSalaryId());
         return pstm.executeUpdate() > 0;
     }
 
@@ -71,9 +70,11 @@ public class SalaryModel {
                     rs.getBigDecimal("daily_rate"),
                     rs.getBigDecimal("total_salary")
             );
-            // If you need bankDetails, you can add a setter or extend constructor
+
             list.add(salary);
         }
         return list;
     }
+
+
 }
