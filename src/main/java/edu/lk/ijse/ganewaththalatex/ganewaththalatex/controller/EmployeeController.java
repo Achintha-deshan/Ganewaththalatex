@@ -1,8 +1,10 @@
 package edu.lk.ijse.ganewaththalatex.ganewaththalatex.controller;
 
+import edu.lk.ijse.ganewaththalatex.ganewaththalatex.bo.custom.EmployeBO;
+import edu.lk.ijse.ganewaththalatex.ganewaththalatex.bo.custom.impl.EmployeeBOImpl;
 import edu.lk.ijse.ganewaththalatex.ganewaththalatex.dto.EmployeeDto;
 import edu.lk.ijse.ganewaththalatex.ganewaththalatex.dto.tm.EmployeTM;
-import edu.lk.ijse.ganewaththalatex.ganewaththalatex.model.EmployeeModel;
+//import edu.lk.ijse.ganewaththalatex.ganewaththalatex.model.EmployeeModel;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -21,6 +23,8 @@ import java.util.Optional;
 import java.util.ResourceBundle;
 
 public class EmployeeController implements Initializable {
+
+    private final EmployeBO employeBO = new EmployeeBOImpl();
 
     @FXML
     private AnchorPane ancEmpPageLorder;
@@ -71,7 +75,7 @@ public class EmployeeController implements Initializable {
         EmployeeDto employeeDto = new EmployeeDto(employerID, employerName,phonenumber);
 
         try {
-            boolean isSaved = EmployeeModel.addEmployee(employeeDto);
+            boolean isSaved = employeBO.saveEmployee(employeeDto);
             if (isSaved) {
                 loadData();
                 loadNextId();
@@ -106,7 +110,7 @@ public class EmployeeController implements Initializable {
             try {
                 String EmployeeID = lblEmpID.getText();
 
-                boolean isDeleted = EmployeeModel.deleteEmployee(EmployeeID);
+                boolean isDeleted = employeBO.deleteEmployee(EmployeeID);
                 if (isDeleted) {
                     loadData();
                     clearFields();
@@ -136,7 +140,7 @@ public class EmployeeController implements Initializable {
         String input = txtSearchheare.getText();
 
         try {
-            EmployeeDto dto = EmployeeModel.searchEmployee(input);
+            EmployeeDto dto = employeBO.findEmployeeById(input);
 
             if (dto != null) {
                 lblEmpID.setText(dto.getEmployerID());
@@ -165,7 +169,7 @@ public class EmployeeController implements Initializable {
 
         EmployeeDto employeeDto = new EmployeeDto(employerID, employerName,phonenumber);
         try {
-            boolean isUpdate = EmployeeModel.updateEmployee(employeeDto);
+            boolean isUpdate = employeBO.updateEmployee(employeeDto);
             if (isUpdate) {
                 loadData();
                 loadNextId();
@@ -204,7 +208,7 @@ public class EmployeeController implements Initializable {
     }
     private void loadData(){
         try {
-            ArrayList<EmployeeDto> employeeDtos = EmployeeModel.getEmployees();
+            ArrayList<EmployeeDto> employeeDtos = employeBO.getAllEmployees();
             ObservableList<EmployeTM> employeesTMObservableList = FXCollections.observableArrayList();
 
             for (EmployeeDto employeeDto : employeeDtos) {
@@ -220,7 +224,7 @@ public class EmployeeController implements Initializable {
 
     private void loadNextId(){
         try {
-            String id = EmployeeModel.getEmployeeID();
+            String id = employeBO.getNextEmployeeId();
             lblEmpID.setText(id);
             loadData();
         } catch (Exception e) {

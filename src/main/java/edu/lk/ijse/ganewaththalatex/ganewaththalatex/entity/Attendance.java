@@ -14,4 +14,6 @@ public class Attendance {
     private String employeeId;
     private String status;
     private LocalDate date;
+    private String employeeName;
+
 }

@@ -1,10 +1,14 @@
 package edu.lk.ijse.ganewaththalatex.ganewaththalatex.controller;
 
+import edu.lk.ijse.ganewaththalatex.ganewaththalatex.bo.custom.InventoryBO;
+import edu.lk.ijse.ganewaththalatex.ganewaththalatex.bo.custom.SupplierBO;
+import edu.lk.ijse.ganewaththalatex.ganewaththalatex.bo.custom.impl.InventoryBOImpl;
+import edu.lk.ijse.ganewaththalatex.ganewaththalatex.bo.custom.impl.SupplierBOImpl;
 import edu.lk.ijse.ganewaththalatex.ganewaththalatex.dto.InventoryDto;
 import edu.lk.ijse.ganewaththalatex.ganewaththalatex.dto.SupplierDto;
 import edu.lk.ijse.ganewaththalatex.ganewaththalatex.dto.tm.InventoryTM;
-import edu.lk.ijse.ganewaththalatex.ganewaththalatex.model.InventoryModel;
-import edu.lk.ijse.ganewaththalatex.ganewaththalatex.model.SupplierModel;
+//import edu.lk.ijse.ganewaththalatex.ganewaththalatex.model.InventoryModel;
+//import edu.lk.ijse.ganewaththalatex.ganewaththalatex.model.SupplierModel;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -21,7 +25,11 @@ import java.util.ResourceBundle;
 
 public class InventoryController implements Initializable {
 
-    private final InventoryModel inventoryModel = new InventoryModel();
+    private final SupplierBO supplierBO = new SupplierBOImpl();
+
+//    private final InventoryModel inventoryModel = new InventoryModel();
+
+    private final InventoryBO inventoryBO = new InventoryBOImpl();
 
     @FXML
     private ComboBox<String> cobSupID;
@@ -55,7 +63,7 @@ public class InventoryController implements Initializable {
 
     private void loadSuplierID() {
         try {
-            List<SupplierDto> suppliers = new SupplierModel().getSuppliers();
+            List<SupplierDto> suppliers = new SupplierBOImpl().getAllSuppliers();
             cobSupID.getItems().clear();
             for (SupplierDto supplier : suppliers) {
                 cobSupID.getItems().add(supplier.getSupplierID());
@@ -67,7 +75,7 @@ public class InventoryController implements Initializable {
 
     private void loadNextID() {
         try {
-            lblInwentID.setText(InventoryModel.getInventoryID());
+            lblInwentID.setText(inventoryBO.getNextInventoryId());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -75,7 +83,7 @@ public class InventoryController implements Initializable {
 
     private void loadInventoryTable() {
         try {
-            List<InventoryDto> inventoryList = InventoryModel.getAllInventory();
+            List<InventoryDto> inventoryList = inventoryBO.getAllInventories();
             ObservableList<InventoryTM> observableList = FXCollections.observableArrayList();
 
             for (InventoryDto dto : inventoryList) {
@@ -118,7 +126,7 @@ public class InventoryController implements Initializable {
         try {
             String selectedID = cobSupID.getValue();
             if (selectedID != null) {
-                SupplierDto dto = SupplierModel.searchSupplier(selectedID);
+                SupplierDto dto = supplierBO.findSupplierById(selectedID);
                 lblSupName.setText(dto != null ? dto.getSupplierName() : "Supplier Not Found");
             }
         } catch (Exception e) {
@@ -145,7 +153,7 @@ public class InventoryController implements Initializable {
 
             int qty = Integer.parseInt(quantity);
             double ratePerLiter = Double.parseDouble(rate);
-            int currentQty = InventoryModel.getTotalQuantityforInventory(inventoryID);
+            int currentQty = inventoryBO.getTotalQuantityForInventory(inventoryID);
             int maxCapacity = 10000;
 
             if (currentQty + qty >= maxCapacity) {
@@ -160,7 +168,7 @@ public class InventoryController implements Initializable {
 
             InventoryDto dto = new InventoryDto(inventoryID, supplierID, supplierName, dateAdded, qty, ratePerLiter, price);
 
-            if (InventoryModel.addInventory(dto)) {
+            if (inventoryBO.saveInventory(dto)) {
                 showAlert(Alert.AlertType.INFORMATION, "Inventory added successfully!");
                 loadInventoryTable();
                 loadNextID();
@@ -191,7 +199,7 @@ public class InventoryController implements Initializable {
                     ratePerLiter,
                     price
             );
-            if (inventoryModel.updateInventory(dto)) {
+            if (inventoryBO.updateInventory(dto)) {
                 showAlert(Alert.AlertType.INFORMATION, "Inventory updated.");
                 loadInventoryTable();
                 clearInputs();
@@ -214,7 +222,7 @@ public class InventoryController implements Initializable {
         if (result.isPresent() && result.get() == ButtonType.YES) {
             try {
                 String id = lblInwentID.getText();
-                if (InventoryModel.deleteInventory(id)) {
+                if (inventoryBO.deleteInventory(id)) {
                     showAlert(Alert.AlertType.INFORMATION, "Deleted successfully.");
                     loadInventoryTable();
                     clearInputs();
@@ -236,7 +244,7 @@ public class InventoryController implements Initializable {
     public void btnonActionSearch(ActionEvent event) {
         String id = lblInwentID.getText();
         try {
-            InventoryDto dto = InventoryModel.searchInventory(id);
+            InventoryDto dto = inventoryBO.findInventoryById(id);
             if (dto != null) {
                 cobSupID.setValue(dto.getSupplierID());
                 lblSupName.setText(dto.getSupplierName());

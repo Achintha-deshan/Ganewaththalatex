@@ -1,16 +1,19 @@
 package edu.lk.ijse.ganewaththalatex.ganewaththalatex.controller;
 
+import edu.lk.ijse.ganewaththalatex.ganewaththalatex.bo.custom.FactoryBO;
+import edu.lk.ijse.ganewaththalatex.ganewaththalatex.bo.custom.InventoryBO;
+import edu.lk.ijse.ganewaththalatex.ganewaththalatex.bo.custom.OrderBO;
+import edu.lk.ijse.ganewaththalatex.ganewaththalatex.bo.custom.impl.FactoryBOImpl;
+import edu.lk.ijse.ganewaththalatex.ganewaththalatex.bo.custom.impl.InventoryBOImpl;
+import edu.lk.ijse.ganewaththalatex.ganewaththalatex.bo.custom.impl.OrderBOImpl;
 import edu.lk.ijse.ganewaththalatex.ganewaththalatex.db.DBConnection;
-import edu.lk.ijse.ganewaththalatex.ganewaththalatex.dto.FactoryDto;
-import edu.lk.ijse.ganewaththalatex.ganewaththalatex.dto.InventoryDto;
-import edu.lk.ijse.ganewaththalatex.ganewaththalatex.dto.OrderDto;
-import edu.lk.ijse.ganewaththalatex.ganewaththalatex.dto.PaymentDTO;
+import edu.lk.ijse.ganewaththalatex.ganewaththalatex.dto.*;
 import edu.lk.ijse.ganewaththalatex.ganewaththalatex.dto.tm.AddToCartTM;
 import edu.lk.ijse.ganewaththalatex.ganewaththalatex.dto.tm.OrderTM;
 import edu.lk.ijse.ganewaththalatex.ganewaththalatex.dto.tm.PaymentTM;
-import edu.lk.ijse.ganewaththalatex.ganewaththalatex.model.FactoryModel;
-import edu.lk.ijse.ganewaththalatex.ganewaththalatex.model.InventoryModel;
-import edu.lk.ijse.ganewaththalatex.ganewaththalatex.model.OrderModel;
+//import edu.lk.ijse.ganewaththalatex.ganewaththalatex.model.FactoryModel;
+//import edu.lk.ijse.ganewaththalatex.ganewaththalatex.model.InventoryModel;
+//import edu.lk.ijse.ganewaththalatex.ganewaththalatex.model.OrderModel;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -36,219 +39,59 @@ import java.time.LocalDate;
 import java.util.*;
 
 public class OrderController implements Initializable {
-private final OrderModel orderModel = new OrderModel();
-    public AnchorPane ancpageloader;
+    private final FactoryBO factoryBO = new FactoryBOImpl();
+    private final InventoryBO inventoryBO = new InventoryBOImpl();
+    private final OrderBO orderBO = new OrderBOImpl();
 
-    @FXML
-    private TextField txtrateL;
-    @FXML
-    private TableColumn<AddToCartTM, Button> colnewAction;
+    @FXML private TextField txtrateL;
+    @FXML private TableColumn<AddToCartTM, String> colnewOrderID;
+    @FXML private TableColumn<AddToCartTM, String> colnewInventoryID;
+    @FXML private TableColumn<AddToCartTM, Double> colnewQTY;
+    @FXML private TableColumn<AddToCartTM, Double> colnewPrice;
+    @FXML private TableColumn<AddToCartTM, Button> colnewAction;
+    @FXML private TableView<AddToCartTM> tblAddtocart;
 
-    @FXML
-    private TableColumn<AddToCartTM, String> colnewInventoryID;
+    @FXML private Label lblfultotal;
+    @FXML private Label OrderID;
+    @FXML private ComboBox<String> cobFacID;
+    @FXML private ComboBox<String> cobIntId;
+    @FXML private Label lblfacname;
+    @FXML private TextField txtOrderDate;
+    @FXML private TextField txtQTYNeed;
+    @FXML private Label txtQtyINT;
 
-    @FXML
-    private TableColumn<AddToCartTM, String> colnewOrderID;
+    @FXML private TableColumn<OrderTM, String> colOrderID;
+    @FXML private TableColumn<OrderTM, String> colFactoryName;
+    @FXML private TableColumn<OrderTM, String> colQTY;
+    @FXML private TableColumn<OrderTM, String> colOrderdate;
+    @FXML private TableView<OrderTM> tblOrder;
 
-    @FXML
-    private TableColumn<AddToCartTM, Double> colnewPrice;
+    private ObservableList<AddToCartTM> cart = FXCollections.observableArrayList();
 
-    @FXML
-    private TableColumn<AddToCartTM, Double> colnewQTY;
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
+        // Initialize TableView columns
+        colnewOrderID.setCellValueFactory(new PropertyValueFactory<>("orderID"));
+        colnewInventoryID.setCellValueFactory(new PropertyValueFactory<>("inventoryID"));
+        colnewQTY.setCellValueFactory(new PropertyValueFactory<>("qty"));
+        colnewPrice.setCellValueFactory(new PropertyValueFactory<>("price"));
+        colnewAction.setCellValueFactory(new PropertyValueFactory<>("action"));
 
-    @FXML
-    private Label lblfultotal;
+        colOrderID.setCellValueFactory(new PropertyValueFactory<>("orderID"));
+        colFactoryName.setCellValueFactory(new PropertyValueFactory<>("factoryName"));
+        colQTY.setCellValueFactory(new PropertyValueFactory<>("qty"));
+        colOrderdate.setCellValueFactory(new PropertyValueFactory<>("orderDate"));
 
-    @FXML
-    private TableView<AddToCartTM> tblAddtocart;
+        // Load initial data
+        loadFactoryIds();
+        loadInventoryIds();
+        loadNextOrderID();
+        loadData();
 
+        // Set current date for orderDate
+        txtOrderDate.setText(LocalDate.now().toString());
 
-    @FXML
-    private Label OrderID;
-
-    @FXML
-    private ComboBox<String> cobFacID;
-
-    @FXML
-    private ComboBox<String> cobIntId;
-
-
-    @FXML
-    private TableColumn<PaymentTM, String> colFultotal;
-
-    @FXML
-    private TableColumn<PaymentTM, String> colHalfPayment;
-
-
-
-    @FXML
-    private TableColumn<OrderTM, String> colFactoryName;
-
-
-
-    @FXML
-    private TableColumn<OrderTM, String> colOrderID;
-
-    @FXML
-    private TableColumn<OrderTM, String> colOrderdate;
-
-    @FXML
-    private TableColumn<OrderTM, String> colQTY;
-
-
-    @FXML
-    private TableView<OrderTM> tblOrder;
-
-    @FXML
-    private Label lblfacname;
-
-    @FXML
-    private TextField txtOrderDate;
-
-    @FXML
-    private TextField txtQTYNeed;
-
-    @FXML
-    private Button btnreport;
-
-    @FXML
-    private Label txtQtyINT;
-
-    ObservableList<AddToCartTM> cart = FXCollections.observableArrayList();
-
-    @FXML
-  void btnonactionReport(ActionEvent event) {
-
-        OrderTM orderTM = tblOrder.getSelectionModel().getSelectedItem();
-        if (orderTM == null) {
-            new Alert(Alert.AlertType.WARNING, "Please select an order to generate the report.").show();
-            return;
-        }
-
-      try {
-          JasperReport jasperReport = JasperCompileManager.compileReport(
-                  getClass()
-                          .getResourceAsStream("/Report/FactoryOrderDetails.jrxml")
-          );
-          Connection con = DBConnection.getInstance().getConnection();
-
-          Map<String, Object> params = new HashMap<>();
-
-          params.put("P_Date",  LocalDate.now().toString());
-          params.put("P_OrderID",orderTM.getOrderID());
-
-          JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, params, con);
-          JasperViewer.viewReport(jasperPrint, false);
-
-      } catch (JRException e) {
-          throw new RuntimeException(e);
-      }catch (SQLException | ClassNotFoundException e){
-          new Alert(Alert.AlertType.ERROR,"DB Error").show();
-          e.printStackTrace();
-      }
-    }
-
-    @FXML
-    void btnonActionAttandanceandsalary(ActionEvent event) {
-        navigate("");
-
-    }
-
-
-    @FXML
-    void btnonActionAddtoCart(ActionEvent event) throws IOException {
-        try{
-            colnewOrderID.setCellValueFactory(new PropertyValueFactory<>("orderID"));
-            colnewInventoryID.setCellValueFactory(new PropertyValueFactory<>("inventoryID"));
-            colnewQTY.setCellValueFactory(new PropertyValueFactory<>("qty"));
-            colnewPrice.setCellValueFactory(new PropertyValueFactory<>("price"));
-            colnewAction.setCellValueFactory(new PropertyValueFactory<>("action"));
-
-            tblAddtocart.setVisible(true);
-
-            Button myButton = new Button("remove");
-
-            double qty = Double.parseDouble(txtQTYNeed.getText());
-            double rate = Double.parseDouble(txtrateL.getText());
-
-            AddToCartTM orderTM = new AddToCartTM(
-                    OrderID.getText(),
-                    cobIntId.getValue(),
-                    qty,
-                    qty*rate,
-                    myButton
-            );
-
-            myButton.setOnAction(e -> {
-                cart.remove(orderTM);
-                tblAddtocart.refresh();
-            });
-
-            System.out.println(orderTM.getOrderID());
-            cart.add(orderTM);
-
-            tblAddtocart.setItems(cart);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-
-    @FXML
-    void btnonActionPlaceOrder(ActionEvent event) {
-        try {
-            String orderId = OrderID.getText().trim();
-            String factoryId = cobFacID.getValue();
-            String factoryName = lblfacname.getText();
-            String inventoryId = cobIntId.getValue();
-            String qtyOnInventory = txtQtyINT.getText();
-            String qtyNeeded = txtQTYNeed.getText();
-            String orderDate = txtOrderDate.getText();
-
-
-            if (orderId.isEmpty() || factoryId == null || inventoryId == null || qtyNeeded.isEmpty() || orderDate.isEmpty()) {
-                System.out.println("Please fill all fields!");
-                return;
-            }
-
-            OrderDto dto = new OrderDto(orderId, factoryName , qtyNeeded , orderDate, inventoryId, qtyOnInventory, factoryId );
-
-            boolean isSuccess = new OrderModel().placeOrder(dto,cart);
-            double qty = Double.parseDouble(txtQTYNeed.getText());
-            double rate = Double.parseDouble(txtrateL.getText());
-            lblfultotal.setText("full Total ="+(qty*rate));
-
-            if (isSuccess) {
-                new Alert(Alert.AlertType.INFORMATION, "Order Placed successfully!").show();
-                clearInputs();
-                loadData();
-                tblAddtocart.setVisible(false);
-                tblOrder.setVisible(true);
-
-            } else {
-                System.out.println("Order placement failed.");
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void loadNextOrderID() {
-        try {
-            String nextID = OrderModel.getNextOrderID();
-            OrderID.setText(nextID);
-        } catch (SQLException | ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-
-    @FXML
-    void btnonActionreset(ActionEvent event) {
-        clearInputs();
-
+        tblAddtocart.setItems(cart);
     }
 
     @FXML
@@ -256,17 +99,12 @@ private final OrderModel orderModel = new OrderModel();
         try {
             String selectedFactoryId = cobFacID.getValue();
             if (selectedFactoryId != null) {
-                FactoryModel factoryModel = new FactoryModel();
-                FactoryDto factory = factoryModel.searchFactory(selectedFactoryId);
-                if (factory != null) {
-                    lblfacname.setText(factory.getFactoryName());
-                } else {
-                    lblfacname.setText("Factory Not Found");
-                }
+                FactoryDto factory = factoryBO.findFactoryById(selectedFactoryId);
+                lblfacname.setText(factory != null ? factory.getFactoryName() : "Factory Not Found");
             }
         } catch (SQLException | ClassNotFoundException e) {
-            e.printStackTrace();
             lblfacname.setText("Error loading factory");
+            e.printStackTrace();
         }
     }
 
@@ -275,114 +113,147 @@ private final OrderModel orderModel = new OrderModel();
         try {
             String selectedInventoryId = cobIntId.getValue();
             if (selectedInventoryId != null) {
-                InventoryModel inventoryModel = new InventoryModel();
-                InventoryDto inventory = InventoryModel.searchInventory(selectedInventoryId);
-                if (inventory != null) {
-                    txtQtyINT.setText(String.valueOf(inventory.getQuantity()));
-
-                } else {
-                    txtQtyINT.setText("Inventory Not Found");
-                }
+                InventoryDto inventory = inventoryBO.findInventoryById(selectedInventoryId);
+                txtQtyINT.setText(inventory != null ? String.valueOf(inventory.getQuantity()) : "Inventory Not Found");
             }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
+        } catch (SQLException | ClassNotFoundException e) {
+            e.printStackTrace();
         }
     }
 
-    @Override
-    public void initialize(URL url, ResourceBundle resourceBundle) {
-        colOrderID.setCellValueFactory(new PropertyValueFactory<>("orderID"));
-        colFactoryName.setCellValueFactory(new PropertyValueFactory<>("factoryName"));
-        colQTY.setCellValueFactory(new PropertyValueFactory<>("qty"));
-        colOrderdate.setCellValueFactory(new PropertyValueFactory<>("orderDate"));
-        colFultotal.setCellValueFactory(new PropertyValueFactory<>("fullTotal"));
-        colHalfPayment.setCellValueFactory(new PropertyValueFactory<>("halfPayment"));
+    @FXML
+    void btnonActionAddtoCart(ActionEvent event) {
+        try {
+            double qty = Double.parseDouble(txtQTYNeed.getText());
+            double rate = Double.parseDouble(txtrateL.getText());
 
+            Button btnRemove = new Button("Remove");
 
-        loadData();
-        txtOrderDate.setText(String.valueOf(LocalDate.now()));
+            AddToCartTM item = new AddToCartTM(
+                    OrderID.getText(),
+                    cobIntId.getValue(),
+                    qty,
+                    qty * rate,
+                    btnRemove
+            );
 
-        loadFactoryIds();
-        loadInventoryIds();
-        loadNextOrderID();
+            btnRemove.setOnAction(e -> {
+                cart.remove(item);
+                tblAddtocart.refresh();
+                updateFullTotal();
+            });
+
+            cart.add(item);
+            updateFullTotal();
+
+        } catch (NumberFormatException e) {
+            new Alert(Alert.AlertType.WARNING, "Please enter valid quantity and rate").show();
+        }
+    }
+
+    @FXML
+    void btnonActionPlaceOrder(ActionEvent event) {
+        try {
+            String orderId = OrderID.getText().trim();
+            String factoryId = cobFacID.getValue();
+            String factoryName = lblfacname.getText();
+            String orderDate = txtOrderDate.getText();
+
+            if (orderId.isEmpty() || factoryId == null || factoryName.isEmpty() || orderDate.isEmpty() || cart.isEmpty()) {
+                new Alert(Alert.AlertType.WARNING, "Please fill all fields and add items to cart").show();
+                return;
+            }
+
+            OrderDto orderDTO = new OrderDto(orderId, factoryName, "", orderDate, "", "", factoryId);
+
+            List<OrderDetailsDto> orderDetailsList = new ArrayList<>();
+            for (AddToCartTM cartItem : cart) {
+                OrderDetailsDto detailsDto = new OrderDetailsDto(
+                        null, // OrderDetailsID (auto-generated in DAO/BO)
+                        orderId,
+                        cartItem.getInventoryID(),
+                        (int) cartItem.getQty(),
+                        0 // qtyOnInventory (optional or you can fetch real value if needed)
+                );
+                orderDetailsList.add(detailsDto);
+            }
+
+            boolean success = orderBO.placeOrder(orderDTO, orderDetailsList);
+
+            if (success) {
+                new Alert(Alert.AlertType.INFORMATION, "Order placed successfully!").show();
+                clearInputs();
+                loadData();
+                cart.clear();
+                tblAddtocart.refresh();
+                loadNextOrderID();
+            } else {
+                new Alert(Alert.AlertType.ERROR, "Order placement failed!").show();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            new Alert(Alert.AlertType.ERROR, "An error occurred: " + e.getMessage()).show();
+        }
+    }
+
+    private void updateFullTotal() {
+        double total = 0;
+        for (AddToCartTM item : cart) {
+            total += item.getPrice();
+        }
+        lblfultotal.setText("Full Total = " + total);
     }
 
     private void loadFactoryIds() {
         try {
-            FactoryModel factoryModel = new FactoryModel();
-            List<FactoryDto> factoryList = factoryModel.getFactoryList();
-
-            List<String> ids = new ArrayList<>();
-            for (FactoryDto factory : factoryList) {
-                ids.add(factory.getFactoryID());
-            }
-
+            List<FactoryDto> factoryList = factoryBO.getAllFactories();
             cobFacID.getItems().clear();
-            cobFacID.getItems().addAll(ids);
-
+            for (FactoryDto f : factoryList) {
+                cobFacID.getItems().add(f.getFactoryID());
+            }
         } catch (SQLException | ClassNotFoundException e) {
             e.printStackTrace();
-
         }
     }
 
     private void loadInventoryIds() {
         try {
-            InventoryModel inventoryModel = new InventoryModel();
-            List<InventoryDto> inventoryDtoList = InventoryModel.getAllInventory();
-
-            List<String> ids = new ArrayList<>();
-            for (InventoryDto inventory : inventoryDtoList) {
-                ids.add(inventory.getInventoryID());
-            }
+            List<InventoryDto> inventoryList = inventoryBO.getAllInventories();
             cobIntId.getItems().clear();
-            cobIntId.getItems().addAll(ids);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public void navigate(String path) {
-        try {
-            ancpageloader.getChildren().clear();
-            Parent parent = FXMLLoader.load(getClass().getResource(path));
-            ancpageloader.getChildren().add(parent);
-        } catch (Exception e) {
+            for (InventoryDto inv : inventoryList) {
+                cobIntId.getItems().add(inv.getInventoryID());
+            }
+        } catch (SQLException | ClassNotFoundException e) {
             e.printStackTrace();
         }
     }
 
-    private void loadData(){
+    private void loadNextOrderID() {
         try {
-            ArrayList<OrderDto> orderDtos = orderModel.getAllOrders();
+            String nextId = orderBO.getNextOrderID();
+            OrderID.setText(nextId);
+        } catch (SQLException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
 
-            if (!orderDtos.isEmpty()) {
-                System.out.println(orderDtos.get(0).getOrderID());
-            } else {
-                System.out.println("No orders found.");
-            }
-
+    private void loadData() {
+        try {
+            List<OrderDto> orderList = orderBO.getAllOrders();
             ObservableList<OrderTM> orders = FXCollections.observableArrayList();
-
-            for (OrderDto orderDto : orderDtos){
-                OrderTM orderTM = new OrderTM(
-                        orderDto.getOrderID(),
-                        orderDto.getFactoryName(),
-                        orderDto.getQty(),
-                        orderDto.getOrderDate(),
-                        orderDto.getInventoryID(),
-                        orderDto.getInventoryQTY(),
-                        orderDto.getFactoryID(),
-                        "-",
-                        "-"
-                );
-                orders.add(orderTM);
+            for (OrderDto order : orderList) {
+                orders.add(new OrderTM(
+                        order.getOrderID(),
+                        order.getFactoryName(),
+                        order.getQty(),
+                        order.getOrderDate(),
+                        order.getInventoryID(),
+                        order.getInventoryQTY(),
+                        order.getFactoryID(),
+                        "-", // fullTotal placeholder if needed
+                        "-"  // halfPayment placeholder if needed
+                ));
             }
-
             tblOrder.setItems(orders);
         } catch (Exception e) {
             e.printStackTrace();
@@ -390,14 +261,25 @@ private final OrderModel orderModel = new OrderModel();
     }
 
     private void clearInputs() {
-      cobFacID.setValue(null);
-      cobIntId.setValue(null);
-      lblfacname.setText("");
-      txtOrderDate.clear();
-      txtQTYNeed.clear();
-      txtQtyINT.setText("");
+        cobFacID.setValue(null);
+        cobIntId.setValue(null);
+        lblfacname.setText("");
+        txtOrderDate.setText(LocalDate.now().toString());
+        txtQTYNeed.clear();
+        txtQtyINT.setText("");
+        lblfultotal.setText("Full Total = 0");
+    }
+    @FXML
+    void btnonActionreset(ActionEvent event) {
+        clearInputs();
+        cart.clear();
+        tblAddtocart.refresh();
+        loadNextOrderID();
     }
 
+
+    public void btnonactionReport(ActionEvent actionEvent) {
+    }
 }
 
 

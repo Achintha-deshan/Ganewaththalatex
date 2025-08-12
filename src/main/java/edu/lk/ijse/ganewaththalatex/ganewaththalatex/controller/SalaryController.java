@@ -1,11 +1,17 @@
 package edu.lk.ijse.ganewaththalatex.ganewaththalatex.controller;
 
+import edu.lk.ijse.ganewaththalatex.ganewaththalatex.bo.custom.AttendanceBO;
+import edu.lk.ijse.ganewaththalatex.ganewaththalatex.bo.custom.EmployeBO;
+import edu.lk.ijse.ganewaththalatex.ganewaththalatex.bo.custom.SalaryBO;
+import edu.lk.ijse.ganewaththalatex.ganewaththalatex.bo.custom.impl.AttendanceBOImpl;
+import edu.lk.ijse.ganewaththalatex.ganewaththalatex.bo.custom.impl.EmployeeBOImpl;
+import edu.lk.ijse.ganewaththalatex.ganewaththalatex.bo.custom.impl.SalaryBOImpl;
 import edu.lk.ijse.ganewaththalatex.ganewaththalatex.dto.EmployeeDto;
 import edu.lk.ijse.ganewaththalatex.ganewaththalatex.dto.SalaryDTO;
 import edu.lk.ijse.ganewaththalatex.ganewaththalatex.dto.tm.SalaryTM;
-import edu.lk.ijse.ganewaththalatex.ganewaththalatex.model.AttendanceModel;
-import edu.lk.ijse.ganewaththalatex.ganewaththalatex.model.EmployeeModel;
-import edu.lk.ijse.ganewaththalatex.ganewaththalatex.model.SalaryModel;
+//import edu.lk.ijse.ganewaththalatex.ganewaththalatex.model.AttendanceModel;
+//import edu.lk.ijse.ganewaththalatex.ganewaththalatex.model.EmployeeModel;
+//import edu.lk.ijse.ganewaththalatex.ganewaththalatex.model.SalaryModel;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -18,6 +24,9 @@ import java.util.List;
 
 public class SalaryController {
 
+    private final EmployeBO employeBO = new EmployeeBOImpl();
+    private final AttendanceBO attendanceBO = new AttendanceBOImpl();
+    private final SalaryBO salaryBO = new SalaryBOImpl();
     @FXML
     private ComboBox<String> cmbEmployeeId;
     @FXML
@@ -65,7 +74,7 @@ public class SalaryController {
 
     private void loadEmployeeIds() {
         try {
-            List<EmployeeDto> employees = EmployeeModel.getEmployees();
+            List<EmployeeDto> employees = employeBO.getAllEmployees();
             for (EmployeeDto emp : employees) {
                 cmbEmployeeId.getItems().add(emp.getEmployerID());
             }
@@ -87,11 +96,11 @@ public class SalaryController {
 
     private void loadSalaryTable() {
         try {
-            List<SalaryDTO> list = SalaryModel.getAllSalaries();
+            List<SalaryDTO> list = salaryBO.getAllSalaries();
             ObservableList<SalaryTM> obList = FXCollections.observableArrayList();
 
             for (SalaryDTO dto : list) {
-                EmployeeDto emp = EmployeeModel.searchEmployee(dto.getEmployeeId());
+                EmployeeDto emp = employeBO.findEmployeeById(dto.getEmployeeId());
                 obList.add(new SalaryTM(
                         dto.getSalaryId(),
                         dto.getEmployeeId(),
@@ -125,7 +134,7 @@ public class SalaryController {
         SalaryTM selected = tblSalary.getSelectionModel().getSelectedItem();
         if (selected != null) {
             try {
-                boolean deleted = SalaryModel.deleteSalary(selected.getSalaryId());
+                boolean deleted = salaryBO.deleteSalary(selected.getSalaryId());
                 if (deleted) {
                     new Alert(Alert.AlertType.INFORMATION, "Salary deleted").show();
                     loadSalaryTable();
@@ -151,7 +160,7 @@ public class SalaryController {
                         new BigDecimal(txtTotalSalary.getText())
                 );
 
-                boolean updated = SalaryModel.updateSalary(dto);
+                boolean updated = salaryBO.updateSalary(dto);
                 if (updated) {
                     new Alert(Alert.AlertType.INFORMATION, "Salary updated").show();
                     loadSalaryTable();
@@ -168,12 +177,12 @@ public class SalaryController {
 
         if (empId != null && !month.isEmpty()) {
             try {
-                EmployeeDto emp = EmployeeModel.searchEmployee(empId);
+                EmployeeDto emp = employeBO.findEmployeeById(empId);
                 if (emp != null) {
                     txtEmployeeName.setText(emp.getEmployerName());
                 }
 
-                int[] counts = AttendanceModel.getAttendanceCounts(empId, month);
+                int[] counts = attendanceBO.getAttendanceCounts(empId, month);
                 txtPresentDays.setText(String.valueOf(counts[0]));
                 txtHalfDays.setText(String.valueOf(counts[1]));
             } catch (Exception e) {
@@ -239,8 +248,10 @@ public class SalaryController {
 
     public void btnonActionsavesalary(ActionEvent actionEvent) {
         try {
+            String nextId = salaryBO.getNextSalaryId();
+
             SalaryDTO dto = new SalaryDTO(
-                    "S001", // generate ID if needed
+                    nextId,
                     cmbEmployeeId.getValue(),
                     txtMonth.getText(),
                     Integer.parseInt(txtPresentDays.getText()),
@@ -249,7 +260,7 @@ public class SalaryController {
                     new BigDecimal(txtTotalSalary.getText())
             );
 
-            boolean isSaved = SalaryModel.saveSalary(dto);
+            boolean isSaved = salaryBO.saveSalary(dto);
             if (isSaved) {
                 new Alert(Alert.AlertType.INFORMATION, "Salary Saved").show();
                 loadSalaryTable();
@@ -259,4 +270,5 @@ public class SalaryController {
             new Alert(Alert.AlertType.ERROR, "Failed to save salary").show();
         }
     }
+
 }

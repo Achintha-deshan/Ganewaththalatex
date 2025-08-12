@@ -1,8 +1,10 @@
 package edu.lk.ijse.ganewaththalatex.ganewaththalatex.controller;
 
+import edu.lk.ijse.ganewaththalatex.ganewaththalatex.bo.custom.FactoryBO;
+import edu.lk.ijse.ganewaththalatex.ganewaththalatex.bo.custom.impl.FactoryBOImpl;
 import edu.lk.ijse.ganewaththalatex.ganewaththalatex.dto.FactoryDto;
 import edu.lk.ijse.ganewaththalatex.ganewaththalatex.dto.tm.FactoryTM;
-import edu.lk.ijse.ganewaththalatex.ganewaththalatex.model.FactoryModel;
+//import edu.lk.ijse.ganewaththalatex.ganewaththalatex.model.FactoryModel;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -14,12 +16,14 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import java.net.URL;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
 public class FactoryController implements Initializable {
 
-    private final FactoryModel factoryModel = new FactoryModel();
+//    private final FactoryModel factoryModel = new FactoryModel();
+    private final FactoryBO factoryBO = new FactoryBOImpl();
 
     @FXML
     private TextField txtSearchheare;
@@ -74,7 +78,7 @@ public class FactoryController implements Initializable {
 
         System.out.println(FactoryID);
         try {
-            boolean isSaved = FactoryModel.addFactory(factoryDto);
+            boolean isSaved = factoryBO.saveFactory(factoryDto);
             if (isSaved) {
                 loadData();
                 loadNextID();
@@ -112,7 +116,7 @@ public class FactoryController implements Initializable {
                  try {
                      String FactoryID = lblFactoryID.getText();
 
-                     boolean isDeleted = factoryModel.deleteFactory(FactoryID);
+                     boolean isDeleted = factoryBO.deleteFactory(FactoryID);
                      if (isDeleted) {
                          loadData();
                          loadNextID();
@@ -138,7 +142,7 @@ public class FactoryController implements Initializable {
         String input = txtSearchheare.getText();
 
         try {
-            FactoryDto dto = FactoryModel.searchFactory(input);
+            FactoryDto dto = factoryBO.findFactoryById(input);
 
             if (dto != null) {
                lblFactoryID.setText(dto.getFactoryID());
@@ -167,7 +171,7 @@ public class FactoryController implements Initializable {
         FactoryDto factoryDto = new FactoryDto(FactoryID,factoryName,phoneNumber,address);
 
         try {
-            boolean isUpdate = factoryModel.updateFactory(factoryDto);
+            boolean isUpdate = factoryBO.updateFactory(factoryDto);
             if (isUpdate) {
                 loadData();
                 loadNextID();
@@ -216,7 +220,7 @@ public class FactoryController implements Initializable {
     }
     private void loadData(){
         try {
-            ArrayList<FactoryDto> factoryDtos = factoryModel.getFactoryList();
+            List<FactoryDto> factoryDtos = factoryBO.getAllFactories();
             ObservableList<FactoryTM> factoryTMObservableList = FXCollections.observableArrayList();
 
             for(FactoryDto factoryDto : factoryDtos){
@@ -234,7 +238,7 @@ public class FactoryController implements Initializable {
     }
     private void loadNextID(){
         try {
-            String id = factoryModel.getNextFactoryID();
+            String id = factoryBO.getNextFactoryId();
             lblFactoryID.setText(id);
         } catch (Exception e) {
             e.printStackTrace();

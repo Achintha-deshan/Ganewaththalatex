@@ -7,9 +7,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class Factory {
-    private String factoryID;
-    private String factoryName;
+public class Employee {
+    private String employerID;
+    private String employerName;
     private String phoneNumber;
-    private String address;
 }

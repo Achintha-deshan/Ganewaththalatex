@@ -1,9 +1,13 @@
 package edu.lk.ijse.ganewaththalatex.ganewaththalatex.controller;
 
+import edu.lk.ijse.ganewaththalatex.ganewaththalatex.bo.BOFactory;
+import edu.lk.ijse.ganewaththalatex.ganewaththalatex.bo.BOTypes;
+import edu.lk.ijse.ganewaththalatex.ganewaththalatex.bo.custom.AttendanceBO;
+import edu.lk.ijse.ganewaththalatex.ganewaththalatex.dao.custom.AttendanceDAO;
 import edu.lk.ijse.ganewaththalatex.ganewaththalatex.db.DBConnection;
 import edu.lk.ijse.ganewaththalatex.ganewaththalatex.dto.AttendanceDto;
 import edu.lk.ijse.ganewaththalatex.ganewaththalatex.dto.tm.AttendanceTM;
-import edu.lk.ijse.ganewaththalatex.ganewaththalatex.model.AttendanceModel;
+//import edu.lk.ijse.ganewaththalatex.ganewaththalatex.model.AttendanceModel;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -20,6 +24,8 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 public class Attendance implements Initializable {
+
+    private final AttendanceBO attendanceBO = BOFactory.getInstance().getBO(BOTypes.ATTENDANCE);
 
     @FXML
     private Button btnDelete;
@@ -60,6 +66,8 @@ public class Attendance implements Initializable {
     @FXML
     private TextField txtname;
 
+
+
     @FXML
     void btnonActionDeleteEmploye(ActionEvent event) {
         AttendanceTM selected = tblAttendance.getSelectionModel().getSelectedItem();
@@ -71,7 +79,7 @@ public class Attendance implements Initializable {
         String attendanceId = selected.getAttendanceId();
 
         try {
-            boolean deleted = AttendanceModel.deleteAttendance(attendanceId);
+            boolean deleted = attendanceBO.deleteAttendance(attendanceId);
             if (deleted) {
                 new Alert(Alert.AlertType.INFORMATION, "Attendance deleted successfully").show();
                 loadAttendanceTable();
@@ -104,9 +112,9 @@ public class Attendance implements Initializable {
 
         AttendanceDto dto = new AttendanceDto(attendanceId, empId, status, date);
         try {
-            boolean isSaved = AttendanceModel.saveAttendance(dto);
+            boolean isSaved = attendanceBO.markAttendance(dto);
             if (isSaved) {
-                new Alert(Alert.AlertType.INFORMATION, "Attendance marked successfully!").show();
+                new Alert(Alert.AlertType.INFORMATION,  "Attendance marked successfully!").show();
                 loadAttendanceTable();
                 clearFields();
             }
@@ -154,7 +162,7 @@ public class Attendance implements Initializable {
         AttendanceDto dto = new AttendanceDto(attendanceId, empId, status, date);
 
         try {
-            boolean updated = AttendanceModel.updateAttendance(dto);
+            boolean updated = attendanceBO.updateAttendance(dto);
             if (updated) {
                 new Alert(Alert.AlertType.INFORMATION, "Attendance updated successfully").show();
                 loadAttendanceTable();
@@ -223,7 +231,7 @@ public class Attendance implements Initializable {
 
     private void loadAttendanceTable() {
         try {
-            List<AttendanceTM> attendanceList = AttendanceModel.getAllAttendance();
+            List<AttendanceTM> attendanceList = attendanceBO.getAllAttendance();
             tblAttendance.getItems().setAll(attendanceList);
         } catch (SQLException | ClassNotFoundException e) {
             e.printStackTrace();

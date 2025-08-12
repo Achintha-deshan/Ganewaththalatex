@@ -1,8 +1,10 @@
 package edu.lk.ijse.ganewaththalatex.ganewaththalatex.controller;
 
+import edu.lk.ijse.ganewaththalatex.ganewaththalatex.bo.custom.SupplierBO;
+import edu.lk.ijse.ganewaththalatex.ganewaththalatex.bo.custom.impl.SupplierBOImpl;
 import edu.lk.ijse.ganewaththalatex.ganewaththalatex.dto.SupplierDto;
 import edu.lk.ijse.ganewaththalatex.ganewaththalatex.dto.tm.SupplierTM;
-import edu.lk.ijse.ganewaththalatex.ganewaththalatex.model.SupplierModel;
+//import edu.lk.ijse.ganewaththalatex.ganewaththalatex.model.SupplierModel;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -19,8 +21,9 @@ import java.util.ResourceBundle;
 
 public class SuplierController implements Initializable {
 
-    private final SupplierModel supplierModel = new SupplierModel();
+//    private final SupplierModel supplierModel = new SupplierModel();
 
+    private final SupplierBO supplierBO = new SupplierBOImpl();
     @FXML
     private TextField txtSearchheare;
 
@@ -93,7 +96,7 @@ public class SuplierController implements Initializable {
         SupplierDto supplierDto = new SupplierDto(SupplierId, name, phoneNumber, bankName, accountNumber, branchName);
 
         try {
-            boolean isSaved = supplierModel.addSupplier(supplierDto);
+            boolean isSaved = supplierBO.saveSupplier(supplierDto);
             if (isSaved) {
                 loadData();
                 clearFields();
@@ -128,7 +131,7 @@ public class SuplierController implements Initializable {
             try {
                 String SupplierId = lblSupplier.getText();
 
-                boolean isDeleted = supplierModel.deleteSupplier(SupplierId);
+                boolean isDeleted = supplierBO.deleteSupplier(SupplierId);
                 if (isDeleted) {
                     loadData();
                     clearFields();
@@ -165,7 +168,7 @@ public class SuplierController implements Initializable {
         }
 
         try {
-            SupplierDto dto = SupplierModel.searchSupplier(key);
+            SupplierDto dto = supplierBO.findSupplierById(key);
 
             if (dto != null) {
                 lblSupplier.setText(dto.getSupplierID());
@@ -197,7 +200,7 @@ public class SuplierController implements Initializable {
         SupplierDto supplierDto = new SupplierDto(SupplierId, name, phoneNumber, bankName, accountNumber, branchName);
 
         try {
-            boolean isUpdate = supplierModel.updateSupplier(supplierDto);
+            boolean isUpdate = supplierBO.updateSupplier(supplierDto);
             if (isUpdate) {
                 loadData();
                 clearFields();
@@ -238,7 +241,7 @@ public class SuplierController implements Initializable {
 
     private void loadNextId(){
         try {
-            String id = supplierModel.getNextSupplierId();
+            String id = supplierBO.getNextSupplierId();
             lblSupplier.setText(id);
             loadData();
         } catch (Exception e) {
@@ -259,7 +262,7 @@ public class SuplierController implements Initializable {
     }
     private void loadData() {
         try {
-            ArrayList<SupplierDto> supplierDtos = supplierModel.getSuppliers();
+            ArrayList<SupplierDto> supplierDtos = supplierBO.getAllSuppliers();
             ObservableList<SupplierTM> supplierTMObservableList = FXCollections.observableArrayList();
 
             for (SupplierDto dto : supplierDtos) {
