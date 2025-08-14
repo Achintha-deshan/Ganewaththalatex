@@ -31,11 +31,15 @@ public class OrderDAOimpl implements OrderDAO {
 
     @Override
     public boolean save(Order order, Connection connection) throws SQLException {
-        String sql = "INSERT INTO OrderTable (...) VALUES (...)";
+        String sql = "INSERT INTO OrderTable (Order_ID, Factory_ID, FactoryName, OrderDate) VALUES (?, ?, ?, ?)";
         PreparedStatement pstm = connection.prepareStatement(sql);
-        // set params...
+        pstm.setString(1, order.getOrderID());
+        pstm.setString(2, order.getFactoryID());
+        pstm.setString(3, order.getFactoryName());
+        pstm.setString(4, order.getOrderDate());
         return pstm.executeUpdate() > 0;
     }
+
 
 
     @Override

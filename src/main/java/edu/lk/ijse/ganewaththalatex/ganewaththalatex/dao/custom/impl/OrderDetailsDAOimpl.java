@@ -21,26 +21,39 @@ public class OrderDetailsDAOimpl implements OrderDetailsDAO {
 
     @Override
     public String getNextId() throws SQLException, ClassNotFoundException {
-        return "";
+        try {
+            return getNextOrderDetailsId();
+        } catch (Exception e) {
+            throw new SQLException("Failed to generate next OrderDetail ID", e);
+        }
     }
 
     @Override
     public boolean save(OrderDetails orderDetails) throws SQLException, ClassNotFoundException {
-        return false;
+        return SQLUtil.execute(
+                "INSERT INTO OrderDetail (OrderDetail_ID, Order_ID, Inventory_ID, QTY, QtyOnInventory) VALUES (?, ?, ?, ?, ?)",
+                orderDetails.getOrderDetailsID(),
+                orderDetails.getOrderID(),
+                orderDetails.getInventoryID(),
+                orderDetails.getQTY(),
+                orderDetails.getQtyOnInventory()
+        );
     }
+
 
     @Override
     public boolean save(OrderDetails entity, Connection connection) throws SQLException {
         String sql = "INSERT INTO OrderDetail (OrderDetail_ID, Order_ID, Inventory_ID, QTY, QtyOnInventory) VALUES (?, ?, ?, ?, ?)";
         try (PreparedStatement pst = connection.prepareStatement(sql)) {
-            pst.setString(1, entity.getOrderDetailsID());
-            pst.setString(2, entity.getOrderID());
-            pst.setString(3, entity.getInventoryID());
-            pst.setString(4, entity.getQTY());
-            pst.setString(5, entity.getQtyOnInventory());
+            pst.setString(1, entity.getOrderDetailsID());     // OD001, OD002...
+            pst.setString(2, entity.getOrderID());            // FK to OrderTable
+            pst.setString(3, entity.getInventoryID());        // FK to Inventory
+            pst.setInt(4, Integer.parseInt(entity.getQTY())); // numeric field
+            pst.setInt(5, Integer.parseInt(entity.getQtyOnInventory())); // numeric field
             return pst.executeUpdate() > 0;
         }
     }
+
 
     @Override
     public boolean update(OrderDetails entity) throws SQLException, ClassNotFoundException {

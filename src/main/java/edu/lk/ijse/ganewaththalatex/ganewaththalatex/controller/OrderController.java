@@ -37,11 +37,14 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class OrderController implements Initializable {
     private final FactoryBO factoryBO = new FactoryBOImpl();
     private final InventoryBO inventoryBO = new InventoryBOImpl();
     private final OrderBO orderBO = new OrderBOImpl();
+   // private List<CartTM> cart = new ArrayList<>();
+
 
     @FXML private TextField txtrateL;
     @FXML private TableColumn<AddToCartTM, String> colnewOrderID;
@@ -66,33 +69,60 @@ public class OrderController implements Initializable {
     @FXML private TableColumn<OrderTM, String> colOrderdate;
     @FXML private TableView<OrderTM> tblOrder;
 
-    private ObservableList<AddToCartTM> cart = FXCollections.observableArrayList();
+    private final ObservableList<AddToCartTM> cart = FXCollections.observableArrayList();
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        // Initialize TableView columns
         colnewOrderID.setCellValueFactory(new PropertyValueFactory<>("orderID"));
         colnewInventoryID.setCellValueFactory(new PropertyValueFactory<>("inventoryID"));
         colnewQTY.setCellValueFactory(new PropertyValueFactory<>("qty"));
         colnewPrice.setCellValueFactory(new PropertyValueFactory<>("price"));
         colnewAction.setCellValueFactory(new PropertyValueFactory<>("action"));
 
+        // FIX — set columns for order table
         colOrderID.setCellValueFactory(new PropertyValueFactory<>("orderID"));
         colFactoryName.setCellValueFactory(new PropertyValueFactory<>("factoryName"));
         colQTY.setCellValueFactory(new PropertyValueFactory<>("qty"));
         colOrderdate.setCellValueFactory(new PropertyValueFactory<>("orderDate"));
 
-        // Load initial data
         loadFactoryIds();
         loadInventoryIds();
         loadNextOrderID();
         loadData();
 
-        // Set current date for orderDate
+        loadOrderData();
         txtOrderDate.setText(LocalDate.now().toString());
 
         tblAddtocart.setItems(cart);
     }
+
+    private void loadOrderData() {
+        try {
+            List<OrderDto> allOrders = orderBO.getAllOrders(); // fetch from BO
+            ObservableList<OrderTM> orderList = FXCollections.observableArrayList();
+
+            for (OrderDto order : allOrders) {
+                orderList.add(new OrderTM(
+                        order.getOrderID(),
+                        order.getFactoryName(),
+                        String.valueOf(order.getQty()),
+                        order.getOrderDate(),
+                        order.getInventoryID(),
+                        String.valueOf(order.getInventoryQTY()),
+                        order.getFactoryID(),
+                        String.valueOf(order.getHalfPayment()),
+                        String.valueOf(order.getFullTotal())
+                ));
+            }
+
+            tblOrder.setItems(orderList);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
 
     @FXML
     void cmbsetFactoryId(ActionEvent event) {
@@ -123,31 +153,40 @@ public class OrderController implements Initializable {
 
     @FXML
     void btnonActionAddtoCart(ActionEvent event) {
-        try {
+        try{
+            colnewOrderID.setCellValueFactory(new PropertyValueFactory<>("orderID"));
+            colnewInventoryID.setCellValueFactory(new PropertyValueFactory<>("inventoryID"));
+            colnewQTY.setCellValueFactory(new PropertyValueFactory<>("qty"));
+            colnewPrice.setCellValueFactory(new PropertyValueFactory<>("price"));
+            colnewAction.setCellValueFactory(new PropertyValueFactory<>("action"));
+
+            tblAddtocart.setVisible(true);
+
+            Button myButton = new Button("remove");
+
             double qty = Double.parseDouble(txtQTYNeed.getText());
             double rate = Double.parseDouble(txtrateL.getText());
 
-            Button btnRemove = new Button("Remove");
-
-            AddToCartTM item = new AddToCartTM(
+            AddToCartTM orderTM = new AddToCartTM(
                     OrderID.getText(),
                     cobIntId.getValue(),
                     qty,
-                    qty * rate,
-                    btnRemove
+                    qty*rate,
+                    myButton
             );
 
-            btnRemove.setOnAction(e -> {
-                cart.remove(item);
+            myButton.setOnAction(e -> {
+                cart.remove(orderTM);
                 tblAddtocart.refresh();
-                updateFullTotal();
             });
 
-            cart.add(item);
-            updateFullTotal();
+            System.out.println(orderTM.getOrderID());
+            cart.add(orderTM);
 
-        } catch (NumberFormatException e) {
-            new Alert(Alert.AlertType.WARNING, "Please enter valid quantity and rate").show();
+            tblAddtocart.setItems(cart);
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -159,42 +198,48 @@ public class OrderController implements Initializable {
             String factoryName = lblfacname.getText();
             String orderDate = txtOrderDate.getText();
 
-            if (orderId.isEmpty() || factoryId == null || factoryName.isEmpty() || orderDate.isEmpty() || cart.isEmpty()) {
-                new Alert(Alert.AlertType.WARNING, "Please fill all fields and add items to cart").show();
+            tblOrder.setVisible(true);
+
+            if (orderId.isEmpty() || factoryId == null || cart.isEmpty()) {
+                new Alert(Alert.AlertType.WARNING, "Fill all fields and add items to cart!").show();
                 return;
             }
 
-            OrderDto orderDTO = new OrderDto(orderId, factoryName, "", orderDate, "", "", factoryId);
+            // Convert String qty to double safely
+            double totalQty = cart.stream().mapToDouble(AddToCartTM::getQty).sum();
 
-            List<OrderDetailsDto> orderDetailsList = new ArrayList<>();
-            for (AddToCartTM cartItem : cart) {
-                OrderDetailsDto detailsDto = new OrderDetailsDto(
-                        null, // OrderDetailsID (auto-generated in DAO/BO)
-                        orderId,
-                        cartItem.getInventoryID(),
-                        (int) cartItem.getQty(),
-                        0 // qtyOnInventory (optional or you can fetch real value if needed)
-                );
-                orderDetailsList.add(detailsDto);
-            }
+            OrderDto dto = new OrderDto(
+                    orderId,
+                    factoryName,
+                    String.valueOf(totalQty),
+                    orderDate,
+                    null, // inventoryId not needed at order level
+                    null, // qtyOnInventory not needed at order level
+                    factoryId
+            );
 
-            boolean success = orderBO.placeOrder(orderDTO, orderDetailsList);
+            boolean isSuccess = orderBO.placeOrder(dto, cart);
 
-            if (success) {
+            if (isSuccess) {
                 new Alert(Alert.AlertType.INFORMATION, "Order placed successfully!").show();
                 clearInputs();
-                loadData();
                 cart.clear();
-                tblAddtocart.refresh();
+                loadData();
+                loadOrderData();
+                cart.clear();
                 loadNextOrderID();
+                txtOrderDate.setText(LocalDate.now().toString());
             } else {
-                new Alert(Alert.AlertType.ERROR, "Order placement failed!").show();
+                new Alert(Alert.AlertType.ERROR, "Order placement failed.").show();
             }
+
         } catch (Exception e) {
             e.printStackTrace();
-            new Alert(Alert.AlertType.ERROR, "An error occurred: " + e.getMessage()).show();
+            new Alert(Alert.AlertType.ERROR, "Error: " + e.getMessage()).show();
         }
     }
+
+
 
     private void updateFullTotal() {
         double total = 0;

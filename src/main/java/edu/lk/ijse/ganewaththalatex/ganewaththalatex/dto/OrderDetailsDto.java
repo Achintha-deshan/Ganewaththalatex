@@ -15,6 +15,9 @@ public class OrderDetailsDto {
         this.qtyOnInventory = qtyOnInventory;
     }
 
+    public OrderDetailsDto(String orderID, String inventoryID, double qty, double price) {
+    }
+
     public String getOrderDetailsID() {
         return orderDetailsID;
     }

@@ -16,4 +16,7 @@ public class Order {
     private String inventoryID;
     private String inventoryQTY;
     private String factoryID;
+
+    public Order(String orderID, String orderDate, String factoryID, double fullTotal, double halfPayment) {
+    }
 }

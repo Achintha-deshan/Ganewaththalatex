@@ -8,7 +8,31 @@ public class OrderDto {
     private String inventoryID;
     private String inventoryQTY;
     private String factoryID;
-;
+    private double fullTotal;   // <-- add this
+    private double halfPayment;
+
+    public OrderDto(double fullTotal, double halfPayment) {
+        this.fullTotal = fullTotal;
+        this.halfPayment = halfPayment;
+    }
+
+    ;
+
+    public double getFullTotal() {
+        return fullTotal;
+    }
+
+    public void setFullTotal(double fullTotal) {
+        this.fullTotal = fullTotal;
+    }
+
+    public double getHalfPayment() {
+        return halfPayment;
+    }
+
+    public void setHalfPayment(double halfPayment) {
+        this.halfPayment = halfPayment;
+    }
 
     public OrderDto(String orderID, String factoryName, String qty, String orderDate, String inventoryID, String inventoryQTY, String factoryID) {
         this.orderID = orderID;
@@ -75,6 +99,7 @@ public class OrderDto {
     public void setFactoryID(String factoryID) {
         this.factoryID = factoryID;
     }
+
 
 
 }

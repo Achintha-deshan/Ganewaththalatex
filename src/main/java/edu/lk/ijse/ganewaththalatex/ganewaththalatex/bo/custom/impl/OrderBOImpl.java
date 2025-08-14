@@ -10,7 +10,9 @@ import edu.lk.ijse.ganewaththalatex.ganewaththalatex.dao.custom.OrderDetailsDAO;
 import edu.lk.ijse.ganewaththalatex.ganewaththalatex.db.DBConnection;
 import edu.lk.ijse.ganewaththalatex.ganewaththalatex.dto.OrderDetailsDto;
 import edu.lk.ijse.ganewaththalatex.ganewaththalatex.dto.OrderDto;
+import edu.lk.ijse.ganewaththalatex.ganewaththalatex.dto.tm.AddToCartTM;
 import edu.lk.ijse.ganewaththalatex.ganewaththalatex.entity.Order;
+import javafx.collections.ObservableList;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -23,11 +25,13 @@ public class OrderBOImpl implements OrderBO {
     private final OrderDetailsDAO orderDetailsDAO = (OrderDetailsDAO) DAOFactory.getInstance().getDAO(DAOTypes.ORDER_DETAILS);
     private final InventoryDAO inventoryDAO = (InventoryDAO) DAOFactory.getInstance().getDAO(DAOTypes.INVENTORY);
 
-    public boolean placeOrder(OrderDto orderDTO, List<OrderDetailsDto> orderDetailsList) throws SQLException, ClassNotFoundException {
+    public boolean placeOrder(OrderDto orderDTO, ObservableList<AddToCartTM> orderDetailsList) throws Exception {
         Connection connection = DBConnection.getInstance().getConnection();
         try {
             connection.setAutoCommit(false);
 
+            Order order = new Order(orderDTO.getOrderID(), orderDTO.getOrderDate(), orderDTO.getFactoryID(),orderDTO.getFullTotal(), orderDTO.getHalfPayment());
+            boolean isOrderSaved = orderDAO.save(order);
             // Save Order entity
             boolean orderSaved = orderDAO.save(OrderEntityDtoConverter.toEntity(orderDTO), connection);
             if (!orderSaved) {
@@ -35,9 +39,23 @@ public class OrderBOImpl implements OrderBO {
                 return false;
             }
 
-            // Save each OrderDetails
-            for (OrderDetailsDto detailsDTO : orderDetailsList) {
-                boolean detailsSaved = orderDetailsDAO.save(OrderEntityDtoConverter.toEntity(detailsDTO), connection);
+            // Save each order detail and update inventory
+            for (AddToCartTM cartItem : orderDetailsList) {
+                String nextOrderDetailID = orderDetailsDAO.getNextOrderDetailsId();
+
+                OrderDetailsDto detailsDTO = new OrderDetailsDto(
+
+                        nextOrderDetailID,
+                        orderDTO.getOrderID(),
+                        cartItem.getInventoryID(),
+                        (int)cartItem.getQty(),
+                        (int)cartItem.getPrice()
+                );
+
+                boolean detailsSaved = orderDetailsDAO.save(
+                        OrderEntityDtoConverter.toEntity(detailsDTO),
+                        connection
+                );
                 if (!detailsSaved) {
                     connection.rollback();
                     return false;
